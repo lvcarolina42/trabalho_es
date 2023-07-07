@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 typedef struct {
   char name[50];
@@ -14,8 +15,6 @@ typedef struct {
 }Passenger;
 
 
-// void mostrarPassageiros(Voo *voo);
-
 int getQuantPassenger(int flight) {
 	FILE *file_flight;
 
@@ -25,7 +24,7 @@ int getQuantPassenger(int flight) {
 
     if (flight == 1) {
     	file_flight = fopen("../voos/1.txt","r");
-    } else if (flight == 1) {
+    } else if (flight == 2) {
     	file_flight = fopen("../voos/2.txt","r");
     } else {
     	file_flight = fopen("../voos/3.txt","r");
@@ -37,13 +36,10 @@ int getQuantPassenger(int flight) {
   
     fclose(file_flight);
 
-    printf("%d\n ", passengers);
-
     return passengers;
-
 }
 
-void showPassenger(Passenger passenger, int currentPassenger){
+void showPassenger(Passenger passenger, int currentPassenger) {
 	printf("Passageiro %d:\n", currentPassenger + 1);
 	printf("\tNome: %s\n", passenger.name);
 	printf("\tCPF: %s\n", passenger.cpf);
@@ -55,7 +51,7 @@ void showPassenger(Passenger passenger, int currentPassenger){
 	printf("\tHorario do voo: %s\n", passenger.timer);
 }
 
-void showCompleteList(Passenger* passengers, int quant_passenger){
+void showCompleteList(Passenger* passengers, int quant_passenger) {
 
 	for (int i = 0; i < quant_passenger; i++)
 	{
@@ -68,7 +64,7 @@ void showCompleteList(Passenger* passengers, int quant_passenger){
 	}
 }
 
-void showAwaitList(Passenger* passengers, int quant_passenger){
+void showAwaitList(Passenger* passengers, int quant_passenger) {
 
 	for (int i = 0; i < quant_passenger; i++)
 	{
@@ -149,7 +145,6 @@ void showPassengers(int flight, int optionShow) {
 
     // Fecha o arquivo
     fclose(arquivo);
-
 }
 
 void registerPassenger(int flight) {
@@ -206,20 +201,37 @@ void registerPassenger(int flight) {
 	  } else {
 	  	printf("O passageiro foi adicionado ao voo\n");
 	  }
+	} else if(flight == 2) {
+
+	  file_flight = fopen("../voos/2.txt", "a");
+	  fprintf(file_flight, "%s,%s,%s,%s,%d,%d,%d,%s\n", passenger.name, passenger.cpf, passenger.address, passenger.phone, passenger.ticketNumber, passenger.seatNumber, passenger.flightNumber, passenger.timer);
+	  
+	  if(quant_passenger >= 10) {
+	  	printf("O passageiro foi adicionado a lista de espera\n");
+	  } else {
+	  	printf("O passageiro foi adicionado ao voo\n");
+	  }
+	} else if(flight == 3) {
+
+	  file_flight = fopen("../voos/3.txt", "a");
+	  fprintf(file_flight, "%s,%s,%s,%s,%d,%d,%d,%s\n", passenger.name, passenger.cpf, passenger.address, passenger.phone, passenger.ticketNumber, passenger.seatNumber, passenger.flightNumber, passenger.timer);
+	  
+	  if(quant_passenger >= 10) {
+	  	printf("O passageiro foi adicionado a lista de espera\n");
+	  } else {
+	  	printf("O passageiro foi adicionado ao voo\n");
+	  }
 	}
 
-	fclose(file_flight);
-	
+	fclose(file_flight);	
 }
 
-// void mostrarFilaEspera(Voo *voo);
-
-int getSelectedFlight(){
+int getSelectedFlight() {
 	printf("\n\nSelecione um voo\n\n");
 	printf("1 - BH-RIO\n");
 	printf("2 - BH-SP\n");
 	printf("3 - BH-BRASILIA\n");
-	printf("0 - Sair");
+	printf("0 - Sair\n");
 
 	printf("\nDigite a opcao desejada: ");
 
@@ -230,7 +242,7 @@ int getSelectedFlight(){
 	return option;
 }
 
-int getSelectedFunction(int flight){
+int getSelectedFunction(int flight) {
 	printf("\nEMPRESA AEREA QUEDA LIVRE - VOO ");
 	switch (flight) {
 		case 1:
@@ -240,7 +252,7 @@ int getSelectedFunction(int flight){
 			printf("BH-SP\n\n");
 			break;
 		default:
-			printf("BH-RIO\n\n");			
+			printf("BH-BRASILIA\n\n");			
 	}
 
 	printf("               MENU DE OPCOES\n\n");
@@ -248,6 +260,7 @@ int getSelectedFunction(int flight){
 	printf("[1] Mostrar a lista completa dos passageiros de um determinado voo\n");
 	printf("[2] Cadastrar um passageiro na lista de determinado voo\n");
 	printf("[3] Mostrar a fila de espera dos passageiros de um determinado voo\n");
+	printf("[4] Testes\n");
 	printf("\n\n[0] Sair");
 
 	printf("\n\nDigite sua opcao: ");
@@ -259,7 +272,160 @@ int getSelectedFunction(int flight){
 	return option;
 }
 
-int main(){
+void test_showPassenger() {
+    Passenger testPassenger;
+    strcpy(testPassenger.name, "Teste 1");
+    strcpy(testPassenger.cpf, "12345678900");
+    strcpy(testPassenger.address, "Main Street");
+    strcpy(testPassenger.phone, "555-1234");
+    testPassenger.ticketNumber = 1234;
+    testPassenger.seatNumber = 5;
+    testPassenger.flightNumber = 1;
+    strcpy(testPassenger.timer, "10:00");
+
+    FILE *tmpFile = freopen("tmp_output.txt", "w", stdout);
+
+    showPassenger(testPassenger, 0);
+
+    fclose(tmpFile);
+    freopen("/dev/tty", "w", stdout);
+
+    FILE *tmpFileRead = fopen("tmp_output.txt", "r");
+
+    char buffer[100];
+    fgets(buffer, sizeof(buffer), tmpFileRead);
+
+    const char expectedOutput[] = "Passageiro 1:\n";
+
+    assert(strcmp(buffer, expectedOutput) == 0);
+
+    fclose(tmpFileRead);
+    remove("tmp_output.txt");
+
+    printf("Test passed!\n");
+}
+
+void test_getQuantPassenger() {
+	// Test file 1
+	int result = getQuantPassenger(1);
+	assert(result == 15);
+
+	// Test file 2
+	result = getQuantPassenger(2);
+	assert(result == 15); 
+
+	// Test file 3
+	result = getQuantPassenger(3);
+	assert(result == 9); 
+
+	printf("All test cases passed!\n");
+}
+
+void test_showCompleteList() {
+    Passenger testPassengers[12];
+
+    for (int i = 0; i < 12; i++) {
+        sprintf(testPassengers[i].name, "Passenger %d", i + 1);
+        sprintf(testPassengers[i].cpf, "CPF%d", i + 1);
+        sprintf(testPassengers[i].address, "Address%d", i + 1);
+        sprintf(testPassengers[i].phone, "Phone%d", i + 1);
+        testPassengers[i].ticketNumber = i + 1;
+        testPassengers[i].seatNumber = i + 1;
+        testPassengers[i].flightNumber = 1;
+        sprintf(testPassengers[i].timer, "10:00 AM");
+    }
+
+    FILE *tmpFile = freopen("tmp_output.txt", "w", stdout);
+
+    showCompleteList(testPassengers, 12);
+
+    fclose(tmpFile);
+    freopen("/dev/tty", "w", stdout);
+
+    FILE *tmpFileRead = fopen("tmp_output.txt", "r");
+
+    char buffer[100];
+    fgets(buffer, sizeof(buffer), tmpFileRead);
+
+    const char expectedOutput[] = "Passageiro 1:\n";
+
+    assert(strcmp(buffer, expectedOutput) == 0);
+
+    fclose(tmpFileRead);
+    remove("tmp_output.txt");
+
+    printf("Test passed!\n");
+}
+
+void test_showAwaitList() {
+    Passenger testPassengers[12];
+
+    for (int i = 0; i < 12; i++) {
+        sprintf(testPassengers[i].name, "Passenger %d", i + 1);
+        sprintf(testPassengers[i].cpf, "CPF%d", i + 1);
+        sprintf(testPassengers[i].address, "Address%d", i + 1);
+        sprintf(testPassengers[i].phone, "Phone%d", i + 1);
+        testPassengers[i].ticketNumber = i + 1;
+        testPassengers[i].seatNumber = i + 1;
+        testPassengers[i].flightNumber = 1;
+        sprintf(testPassengers[i].timer, "10:00 AM");
+    }
+
+    FILE *tmpFile = freopen("tmp_output.txt", "w", stdout);
+
+    showAwaitList(testPassengers, 12);
+
+    fclose(tmpFile);
+    freopen("/dev/tty", "w", stdout);
+
+    FILE *tmpFileRead = fopen("tmp_output.txt", "r");
+
+    char buffer[100];
+    fgets(buffer, sizeof(buffer), tmpFileRead);
+
+    const char expectedOutput[] = "Passageiro 1:\n";
+
+    assert(strcmp(buffer, expectedOutput) == 0);
+
+    fclose(tmpFileRead);
+    remove("tmp_output.txt");
+
+    printf("Test passed!\n");
+}
+
+void test_showPassengers() {
+    FILE *tmpFile = freopen("tmp_output.txt", "w", stdout);
+
+    showPassengers(1, 1);
+
+    fclose(tmpFile);
+    freopen("/dev/tty", "w", stdout);
+
+    FILE *tmpFileRead = fopen("tmp_output.txt", "r");
+
+    char buffer[100];
+    fgets(buffer, sizeof(buffer), tmpFileRead);
+
+    const char expectedOutput[] = "Passageiro 1:\n";
+
+    assert(strcmp(buffer, expectedOutput) == 0);
+
+    fclose(tmpFileRead);
+    remove("tmp_output.txt");
+
+    printf("Test passed!\n");
+}
+
+
+void tests () {
+	test_getQuantPassenger();
+	test_showPassenger();
+	test_showCompleteList();
+	test_showAwaitList();
+	test_showPassengers();
+}
+
+int main() {
 
 	int option = 0;
 	int flight = 0;
@@ -282,7 +448,7 @@ int main(){
 		system("clear");
 
 		option = getSelectedFunction(flight);
-	}while((option > 3) || (option < 0));
+	}while((option > 4) || (option < 0));
 
 	system("cls");
 	system("clear");
@@ -296,6 +462,9 @@ int main(){
 			break;
 		case 3:
 			showPassengers(flight, 2);
+			break;
+		case 4:
+			tests();
 			break;
 		default:
 			return 0;
